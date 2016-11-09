@@ -1,0 +1,116 @@
+<script src="../tinytest.js"></script>
+<script>
+	
+// Example 1:
+// filter([1,2,3], function() {});
+
+// Example 2:
+// filter([1,2,3], function(number) {
+// 	console.log(number)
+// });
+
+// Example 3:
+// filter([1,2,3], function(number, index) {
+// 	console.log(index)
+// });
+
+// Example 4:
+// filter([1,2,3], function(number, index, array) {
+// 		console.log(array)
+// });
+
+// Example 5:
+// filter([1,2,3], function(){
+// 	console.log(this.name)
+// }, {name: 'jack'});
+
+// Example 6:
+// var testArray = [1,2,3];
+// var filteredArray = filter(testArray, function(){},{});
+// testArray !== filteredArray;
+
+// Example 7:
+// var testArray = [1,2,3];
+// var filteredArray = filter(testArray, function(element){
+// 	return element > 1;
+// });
+// Expect filteredArray to be equal to [2,3]
+
+var filter = function(array, callback, optionalThis){
+	var filterCb = callback;
+	var filtered = [];
+	if (optionalThis){
+		filterCb = callback.bind(optionalThis)
+	}
+	for (var i = 0; i < array.length; i++){
+		if(filterCb(array[i], i, array)){
+			filtered.push(array[i]);
+		}
+	}
+	return filtered;
+};
+
+
+
+	tests({
+		  'It should run the callback array.length times': function() {
+  	var numberOfTimesCbHasRun = 0;
+    filter([1,2,3], function() {
+    	numberOfTimesCbHasRun++;
+    });
+    eq(numberOfTimesCbHasRun, 3);
+  },
+
+  'It should pass in the ith element as the first argument in the callback': function() {
+  	filter([1], function(number) {
+			eq(number, 1);			
+		});
+  },
+
+  'It should pass the index of the array into the cb as a parameter': function() {
+  	filter([1], function(item, index) {
+  		eq(index, 0);
+  	})
+  },
+
+  'It should be able to pass in the original array into the cb as a parameter': function(){
+  	var testArray = [1,2,3];
+  	filter(testArray, function(item, index, array){
+  		eq(array, testArray)
+  	})
+  	
+
+  },
+
+  'It should accept an optional this object': function(){
+  	filter([1],function() {
+  		// Inside of here, this should be equal to configurableThisObject.
+  		// this.description should be equal to 'Configurable this object'.
+  		eq(this.description, 'I should be accessible inside of the callback')
+  	}, {description: 'I should be accessible inside of the callback'}); 	
+  },
+
+  'It should return an array': function(){
+    var testArray = [1,2,3];
+  	var filtered = filter(testArray, function(){});
+  	eq(Array.isArray(filtered), true);	
+  },
+
+  'It should return a new array, not the array being filtered.': function(){
+  	var testArray = [1,2,3];
+  	var filtered = filter(testArray, function(){});
+  	eq(testArray !== filtered, true);
+  },
+
+  'It should return an new array that only has elements where the callback resturns true': function(){
+  	var testArray = [1,2];
+  	var filtered = filter(testArray, function(element){
+  		return element > 1;
+  	});
+  	eq(filtered.length, 1);
+  	eq(filtered[0], 2);
+  }
+
+
+	});
+</script>
