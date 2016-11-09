@@ -37,13 +37,15 @@
 // Expect mappedArray to be equal to [3,4,5]
 
 function map(originalArray, callback, configurableThisObject){
-  var mapped = [];
   var mapCb = callback;
   if(configurableThisObject){
     mapCb = callback.bind(configurableThisObject);
   }
+  var mapped = [];
   for(var i = 0; i < originalArray.length; i ++) {
-    mapped.push(mapCb(originalArray[i], i, originalArray));
+    if(i in originalArray){      
+    mapped[i] = mapCb(originalArray[i], i, originalArray);
+    }
   }
   return mapped;
 };
@@ -103,6 +105,18 @@ tests({
   	});
   	eq(mapped.length, 2);
   	eq(mapped[0], 3);
+  },
+
+  'It should skip unassigned indices': function(){
+    var wierdArray = [, 1];
+    var mapped = map(wierdArray, function double(number){
+      return number * 2;
+    });
+    //(0 in mapped) === false;
+    eq((0 in mapped), false);
+    // mapped[1] === 2;
+    eq(mapped[1], 2);
+
   }
 
 
