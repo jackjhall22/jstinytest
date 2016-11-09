@@ -102,7 +102,7 @@ var filter = function(array, callback, optionalThis){
   	eq(testArray !== filtered, true);
   },
 
-  'It should return an new array that only has elements where the callback resturns true': function(){
+  'It should return an new array that only has elements where the callback returns true': function(){
   	var testArray = [1,2];
   	var filtered = filter(testArray, function(element){
   		return element > 1;

@@ -1,0 +1,110 @@
+<script src="../tinytest.js"></script>
+<script>
+	
+// Example 1: Callback should run 3 times.
+// map([1,2,3], function() {});
+
+// Example 2: Callback has access to ith element
+// map([1,2,3], function(number) {
+// 	console.log(number)
+// });
+
+// Example 3: Callback has access to index
+// map([1,2,3], function(number, index) {
+// 	console.log(index)
+// });
+
+// Example 4: Callback has access to original array
+// map([1,2,3], function(number, index, array) {
+// 		console.log(array)
+// });
+
+// Example 5: Optional this.
+// map([1,2,3], function(){
+// 	console.log(this.name)
+// }, {name: 'jack'});
+
+// Example 6:
+// var originalArray = [1,2,3];
+// var mappedArray = map(originalArray, function(){},{});
+// originalArray !== mappedArray;
+
+// Example 7:
+// var originalArray = [1,2,3];
+// var mappedArray = map(originalArray, function(element){
+// 	return element + 2;
+// });
+// Expect mappedArray to be equal to [3,4,5]
+
+function map(originalArray, callback, configurableThisObject){
+  var mapped = [];
+  var mapCb = callback;
+  if(configurableThisObject){
+    mapCb = callback.bind(configurableThisObject);
+  }
+  for(var i = 0; i < originalArray.length; i ++) {
+    mapped.push(mapCb(originalArray[i], i, originalArray));
+  }
+  return mapped;
+};
+
+tests({
+	'It should run the callback array.length times': function() {   
+   var numberOfTimesCbHasRun = 0;
+   map([1,2,3], function() {
+   	numberOfTimesCbHasRun++;
+   });
+   eq(numberOfTimesCbHasRun, 3);
+  },
+
+  'It should pass in the ith element as the first argument in the callback': function() {
+    map([1], function(number) {
+		eq(number, 1);
+    });
+  },
+
+  'It should pass the index of the array into the cb as a parameter': function() {
+  	map([1], function(item, index) {
+  		eq(index, 0);
+  	})
+  },
+
+  'It should be able to pass in the original array into the cb as a parameter': function(){
+  	var testArray = [1,2,3];
+  	map(testArray, function(item, index, array){
+  		eq(array, testArray)
+  	})
+  },
+
+  'It should accept an optional this object': function(){
+  	map([1],function() {
+  		// Inside of here, this should be equal to configurableThisObject.
+  		// this.description should be equal to 'Configurable this object'.
+  		eq(this.description, 'I should be accessible inside of the callback')
+  	}, {description: 'I should be accessible inside of the callback'}); 	
+  },
+
+  'It should return an array': function(){
+    var originalArray = [1,2,3];
+    var mapped = map(originalArray, function(){});
+  	eq(Array.isArray(mapped), true);	
+  },
+
+  'It should return a new array, not the originalArray.': function(){
+  	var originalArray = [1,2,3];
+  	var mapped = map(originalArray, function(){});
+  	eq(originalArray !== mapped, true);
+  },
+
+  'It should return an new array that has elements transformed by callback': function(){
+  	var originalArray = [1,2];
+  	var mapped = map(originalArray, function(element){
+  		return element + 2;
+  	});
+  	eq(mapped.length, 2);
+  	eq(mapped[0], 3);
+  }
+
+
+	});
+</script>
